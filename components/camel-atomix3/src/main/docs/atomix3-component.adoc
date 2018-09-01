@@ -1,0 +1,15 @@
+[[atomix-component]]
+== Atomix V3 Component
+
+*Available as of Camel version 2.23*
+
+Maven users will need to add the following dependency to their pom.xml for this component:
+
+[source,java]
+----
+    <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-atomix3</artifactId>
+        <version>${camel-version}</version>
+    </dependency>
+----
