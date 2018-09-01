@@ -26,8 +26,8 @@ import org.apache.camel.test.AvailablePortFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AtomixInstanceMain {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AtomixInstanceMain.class);
+public class AtomixClientMain {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AtomixClientMain.class);
 
     public static void main(String[] args) throws Exception {
         CamelContext context = new DefaultCamelContext();
