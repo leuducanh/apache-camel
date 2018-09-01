@@ -112,6 +112,8 @@ public class AtomixInstance extends ServiceSupport implements CamelContextAware 
                 ObjectHelper.ifNotEmpty(configuration.getMemberId(), builder::withMemberId);
                 ObjectHelper.ifNotEmpty(configuration.getMemberAddress(), builder::withAddress);
                 ObjectHelper.ifNotEmpty(configuration.getProfiles(), builder::withProfiles);
+                ObjectHelper.ifNotEmpty(configuration.getSystemPartitionGroup(), builder::withManagementGroup);
+                ObjectHelper.ifNotEmpty(configuration.getPrimitivePartitionGroups(), builder::withPartitionGroups);
 
                 if (ObjectHelper.isNotEmpty(configuration.getMembershipProvider())) {
                     builder.withMembershipProvider(configuration.getMembershipProvider());

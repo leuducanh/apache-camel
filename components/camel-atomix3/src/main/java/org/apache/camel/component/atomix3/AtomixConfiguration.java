@@ -17,12 +17,12 @@
 package org.apache.camel.component.atomix3;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import io.atomix.cluster.discovery.NodeDiscoveryProvider;
 import io.atomix.core.Atomix;
 import io.atomix.core.profile.Profile;
+import io.atomix.primitive.partition.ManagedPartitionGroup;
 import org.apache.camel.spi.UriParam;
 
 public class AtomixConfiguration implements Cloneable {
@@ -46,6 +46,10 @@ public class AtomixConfiguration implements Cloneable {
     private String clusterId;
     @UriParam(label = "advanced")
     private List<Profile> profiles;
+    @UriParam(label = "advanced")
+    private ManagedPartitionGroup systemPartitionGroup;
+    @UriParam(label = "advanced")
+    private List<ManagedPartitionGroup> primitivePartitionGroups;
 
     // *****************************************
     // Properties
@@ -81,14 +85,22 @@ public class AtomixConfiguration implements Cloneable {
      * Sets the bootstrap nodes in the form id@host:port.
      */
     public void setNodes(List<String> nodes) {
-        this.nodes = nodes;
+        this.nodes = new ArrayList<>(nodes);
     }
 
     /**
      * Sets the bootstrap nodes in the form id@host:port.
      */
     public void setNodes(String... nodes) {
-        this.nodes = Arrays.asList(nodes);
+        if (this.nodes == null) {
+            this.nodes = new ArrayList<>();
+        }
+
+        this.nodes.clear();
+
+        for (String node: nodes) {
+            this.nodes.add(node);
+        }
     }
 
     public void addNodes(String... nodes) {
@@ -170,7 +182,7 @@ public class AtomixConfiguration implements Cloneable {
     }
 
     public void setProfiles(List<Profile> profiles) {
-        this.profiles = profiles;
+        this.profiles = new ArrayList<>(profiles);
     }
 
     public void setProfiles(Profile... profiles) {
@@ -192,6 +204,40 @@ public class AtomixConfiguration implements Cloneable {
 
         for (Profile profile: profiles) {
             this.profiles.add(profile);
+        }
+    }
+
+    public ManagedPartitionGroup getSystemPartitionGroup() {
+        return systemPartitionGroup;
+    }
+
+    /**
+     * Sets the system partition groups.
+     */
+    public void setSystemPartitionGroup(ManagedPartitionGroup systemPartitionGroup) {
+        this.systemPartitionGroup = systemPartitionGroup;
+    }
+
+    public List<ManagedPartitionGroup> getPrimitivePartitionGroups() {
+        return primitivePartitionGroups;
+    }
+
+    /**
+     * Sets the primitive partition groups.
+     */
+    public void setPrimitivePartitionGroups(List<ManagedPartitionGroup> primitivePartitionGroups) {
+        this.primitivePartitionGroups = new ArrayList<>(primitivePartitionGroups);
+    }
+
+    public void setPrimitivePartitionGroups(ManagedPartitionGroup... primitivePartitionGroups) {
+        if (this.primitivePartitionGroups == null) {
+            this.primitivePartitionGroups = new ArrayList<>();
+        }
+
+        this.primitivePartitionGroups.clear();
+
+        for (ManagedPartitionGroup group: primitivePartitionGroups) {
+            this.primitivePartitionGroups.add(group);
         }
     }
 
