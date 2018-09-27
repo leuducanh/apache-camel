@@ -105,6 +105,13 @@
       <version>${atomix3-version}</version>
     </dependency>
 
+
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>${atomix3-guava-version}</version>
+    </dependency>
+
     <!-- logging -->       
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>

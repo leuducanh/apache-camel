@@ -41,6 +41,7 @@ public class AtomixClientMain {
 
             AtomixInstance instance = new AtomixInstance(configuration, context);
 
+            LOGGER.info("==== starting ====");
             instance.start();
 
             LOGGER.info("==== started ====");

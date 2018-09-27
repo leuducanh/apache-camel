@@ -42,12 +42,15 @@ public class AtomixBootstrapMain {
             AtomixInstance instance = new AtomixInstance(configuration, context);
 
             LOGGER.info("==== starting ====");
-
-            configuration.getAtomix().start().join();
+            instance.start();
 
             LOGGER.info("==== started ====");
+            for (int i = 0; i < Integer.MAX_VALUE; i++) {
+                Thread.sleep(1000);
+            }
 
-            Thread.sleep(1000 * 30);
+            LOGGER.info("==== stopping ====");
+
             instance.stop();
         } finally {
             context.stop();

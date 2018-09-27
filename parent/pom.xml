@@ -75,6 +75,7 @@
     <atomix-catalyst-version>1.2.1</atomix-catalyst-version>
     <atomix-copycat-version>1.2.8</atomix-copycat-version>
     <atomix3-version>3.0.5</atomix3-version>
+    <atomix3-guava-version>22.0</atomix3-guava-version>
     <automaton-bundle-version>1.11-8_1</automaton-bundle-version>
     <avalon-bundle-version>4.3.1_1</avalon-bundle-version>
     <avalon-version>4.3.1</avalon-version>
