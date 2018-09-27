@@ -18,7 +18,6 @@ package org.apache.camel.component.atomix3;
 
 import java.util.UUID;
 
-import io.atomix.cluster.discovery.MulticastDiscoveryProvider;
 import io.atomix.core.profile.Profile;
 import org.apache.camel.CamelContext;
 import org.apache.camel.impl.DefaultCamelContext;
@@ -35,14 +34,16 @@ public class AtomixBootstrapMain {
         try {
             AtomixConfiguration configuration = new AtomixConfiguration();
             configuration.setClusterId("test");
-            configuration.setMemberAddress("localhost:" + AvailablePortFinder.getNextAvailable());
+            configuration.setMemberAddress("localhost", AvailablePortFinder.getNextAvailable());
             configuration.setMemberId(UUID.randomUUID().toString());
-            configuration.setMembershipProvider(new MulticastDiscoveryProvider());
+            configuration.setMulticastEnabled(true);
             configuration.setProfiles(Profile.dataGrid());
 
             AtomixInstance instance = new AtomixInstance(configuration, context);
 
-            instance.start();
+            LOGGER.info("==== starting ====");
+
+            configuration.getAtomix().start().join();
 
             LOGGER.info("==== started ====");
 

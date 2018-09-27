@@ -28,7 +28,7 @@
     <version>2.23.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>camel-atomix</artifactId>
+  <artifactId>camel-atomix3</artifactId>
   <packaging>jar</packaging>
   <name>Camel :: Atomix v3</name>
   <description>Camel Atomix v3 support</description>

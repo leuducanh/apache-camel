@@ -77,6 +77,13 @@ public class AtomixConfiguration implements Cloneable {
         this.memberAddress = memberAddress;
     }
 
+    /**
+     * Sets the member address.
+     */
+    public void setMemberAddress(String host, int port) {
+        this.memberAddress = host + ":" +port;
+    }
+
     public List<String> getNodes() {
         return nodes;
     }

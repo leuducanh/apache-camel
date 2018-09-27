@@ -57,7 +57,7 @@ public class AtomixInstance extends ServiceSupport implements CamelContextAware 
     }
 
     @Override
-    protected synchronized void doStart() throws Exception {
+    protected void doStart() throws Exception {
         if (this.atomix == null) {
             this.atomix = getOrCreateAtomixInstance();
             this.atomix.start().join();
@@ -65,7 +65,7 @@ public class AtomixInstance extends ServiceSupport implements CamelContextAware 
     }
 
     @Override
-    protected synchronized void doStop() throws Exception {
+    protected void doStop() throws Exception {
         if (this.atomix != null && this.atomix != configuration.getAtomix()) {
             this.atomix.stop().join();
         }
