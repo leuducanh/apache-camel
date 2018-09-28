@@ -18,15 +18,15 @@ package org.apache.camel.component.atomix3.cluster;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import io.atomix.cluster.ClusterMembershipEvent;
 import io.atomix.cluster.ClusterMembershipEventListener;
 import io.atomix.cluster.ClusterMembershipService;
-import io.atomix.cluster.MemberId;
 import io.atomix.core.Atomix;
+import io.atomix.core.election.Leader;
 import io.atomix.core.election.LeaderElection;
-import io.atomix.core.election.Leadership;
 import io.atomix.core.election.LeadershipEvent;
 import io.atomix.core.election.LeadershipEventListener;
 import org.apache.camel.cluster.CamelClusterMember;
@@ -46,7 +46,7 @@ final class AtomixClusterView extends AbstractCamelClusterView {
     private final LeadershipListener leadershipListener;
     private final MembershipListener membershipListener;
 
-    private LeaderElection<MemberId> election;
+    private LeaderElection<String> election;
     private ClusterMembershipService membershipService;
 
     AtomixClusterView(CamelClusterService cluster, String namespace, AtomixInstance atomix, AtomixConfiguration configuration) {
@@ -78,8 +78,8 @@ final class AtomixClusterView extends AbstractCamelClusterView {
     @SuppressWarnings("unchecked")
     @Override
     protected void doStart() throws Exception {
-        this.election = atomix.execute(this::getLeaderElection);
-        this.membershipService = atomix.execute(Atomix::getMembershipService);
+        election = atomix.execute(this::getLeaderElection);
+        membershipService = atomix.execute(Atomix::getMembershipService);
 
         LOGGER.debug("Listen for election events");
         election.addListener(this.leadershipListener);
@@ -87,14 +87,18 @@ final class AtomixClusterView extends AbstractCamelClusterView {
         LOGGER.debug("Listen for membership events");
         membershipService.addListener(this.membershipListener);
 
-        localMember.join();
+        election.run(localMember.getId());
     }
 
     @Override
     protected void doStop() throws Exception {
-        localMember.leave();
+        if (localMember.isLeader()) {
+            election.withdraw(localMember.getId());
+        }
 
         election.removeListener(this.leadershipListener);
+        election.close();
+
         membershipService.removeListener(this.membershipListener);
     }
 
@@ -102,7 +106,7 @@ final class AtomixClusterView extends AbstractCamelClusterView {
     //
     // ***********************************************
 
-    private LeaderElection<MemberId> getLeaderElection(Atomix atomix) throws Exception {
+    private LeaderElection<String> getLeaderElection(Atomix atomix) {
         return atomix.getLeaderElection(getNamespace());
     }
 
@@ -110,9 +114,9 @@ final class AtomixClusterView extends AbstractCamelClusterView {
     //
     // ***********************************************
 
-    private final class LeadershipListener implements LeadershipEventListener<MemberId> {
+    private final class LeadershipListener implements LeadershipEventListener<String> {
         @Override
-        public void event(LeadershipEvent<MemberId> event) {
+        public void event(LeadershipEvent<String> event) {
             if (isRunAllowed()) {
                 fireLeadershipChangedEvent(Optional.of(new AtomixClusterMember(event.newLeadership().leader().id())));
             }
@@ -124,10 +128,10 @@ final class AtomixClusterView extends AbstractCamelClusterView {
         public void event(ClusterMembershipEvent event) {
             if (isRunAllowed()) {
                 if (event.type() == ClusterMembershipEvent.Type.MEMBER_ADDED) {
-                    fireMemberAddedEvent(new AtomixClusterMember(event.subject().id()));
+                    fireMemberAddedEvent(new AtomixClusterMember(event.subject().id().id()));
                 }
                 if (event.type() == ClusterMembershipEvent.Type.MEMBER_REMOVED) {
-                    fireMemberRemovedEvent(new AtomixClusterMember(event.subject().id()));
+                    fireMemberRemovedEvent(new AtomixClusterMember(event.subject().id().id()));
                 }
             }
         }
@@ -137,25 +141,30 @@ final class AtomixClusterView extends AbstractCamelClusterView {
     //
     // ***********************************************
 
-    private class AtomixClusterMember implements CamelClusterMember {
-        private final MemberId member;
+    private final class AtomixClusterMember implements CamelClusterMember {
+        private final String memberId;
 
-        AtomixClusterMember(MemberId member) {
-            this.member = member;
+        AtomixClusterMember(String member) {
+            this.memberId = member;
         }
 
         @Override
         public String getId() {
-            return member.id();
+            return memberId;
         }
 
         @Override
         public boolean isLeader() {
-            if (member == null) {
+            if (memberId == null) {
                 return false;
             }
 
-            return election.getLeadership().leader().id().equals(member);
+            Leader<String> leader = election.getLeadership().leader();
+            if (leader == null) {
+                return false;
+            }
+
+            return leader.id().equals(memberId);
         }
 
         @Override
@@ -164,53 +173,34 @@ final class AtomixClusterView extends AbstractCamelClusterView {
         }
     }
 
-
-    private class AtomixLocalMember implements CamelClusterMember {
-        private MemberId member;
-        private Leadership<MemberId> leadership;
-
-        AtomixLocalMember() {
-            this.member = null;
-            this.leadership = null;
-        }
-
+    private final class AtomixLocalMember implements CamelClusterMember {
         @Override
         public String getId() {
-            return member.id();
+            return membershipService.getLocalMember().id().id();
         }
 
         @Override
         public boolean isLeader() {
-            if (this.leadership == null || member == null) {
+            if (!isRunAllowed()) {
                 return false;
             }
 
-            return leadership.leader().equals(member.id());
+            Leader<String> leader = election.getLeadership().leader();
+            if (leader == null) {
+                return false;
+            }
+
+            final String leaderId = leader.id();
+            final String localId = membershipService.getLocalMember().id().id();
+
+            return Objects.nonNull(leader)
+                && Objects.nonNull(localId)
+                && Objects.equals(leaderId, localId);
         }
 
         @Override
         public boolean isLocal() {
             return true;
-        }
-
-        AtomixLocalMember join() {
-            if (this.member == null) {
-                this.member = membershipService.getLocalMember().id();
-            }
-
-            this.leadership = election.run(this.member);
-
-            return this;
-        }
-
-        AtomixLocalMember leave() {
-            if (this.member != null) {
-                election.evict(this.member);
-            }
-
-            this.leadership = null;
-
-            return this;
         }
     }
 }

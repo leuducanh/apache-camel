@@ -50,6 +50,12 @@ public final class AtomixClusterService extends AbstractCamelClusterService<Atom
     // Properties
     // **********************************
 
+    @Override
+    public void setId(String id) {
+        super.setId(id);
+        setMemberId(id);
+    }
+
     public Atomix getAtomix() {
         return configuration.getAtomix();
     }
@@ -177,7 +183,7 @@ public final class AtomixClusterService extends AbstractCamelClusterService<Atom
 
     @Override
     protected void doStart() throws Exception {
-        LOGGER.debug("Joining atomix cluster {}", configuration.getClusterId());
+        LOGGER.debug("Joining atomix cluster \"{}\"", configuration.getClusterId());
         this.atomix.start();
 
         super.doStart();
@@ -187,7 +193,7 @@ public final class AtomixClusterService extends AbstractCamelClusterService<Atom
     protected void doStop() throws Exception {
         super.doStop();
 
-        LOGGER.debug("Leaving atomix cluster {}", configuration.getClusterId());
+        LOGGER.debug("Leaving atomix cluster \"{}\"", configuration.getClusterId());
         atomix.stop();
     }
 
