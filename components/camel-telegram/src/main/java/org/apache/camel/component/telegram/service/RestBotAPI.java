@@ -16,8 +16,6 @@
  */
 package org.apache.camel.component.telegram.service;
 
-import java.util.List;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -34,7 +32,6 @@ import org.apache.camel.component.telegram.model.SendLocationMessage;
 import org.apache.camel.component.telegram.model.SendVenueMessage;
 import org.apache.camel.component.telegram.model.StopMessageLiveLocationMessage;
 import org.apache.camel.component.telegram.model.UpdateResult;
-import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 
 /**
  * Describes the Telegram Bot APIs.
@@ -61,6 +58,7 @@ public interface RestBotAPI {
             @PathParam("authorizationToken") String authorizationToken,
             OutgoingTextMessage message);
 
+    /*
     @POST
     @Path("/bot{authorizationToken}/sendPhoto")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -84,6 +82,7 @@ public interface RestBotAPI {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     MessageResult sendDocument(@PathParam("authorizationToken") String authorizationToken, List<Attachment> attachments);
+    */
 
     @POST
     @Path("/bot{authorizationToken}/sendLocation")

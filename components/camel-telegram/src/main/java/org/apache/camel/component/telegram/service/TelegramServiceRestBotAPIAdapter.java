@@ -16,17 +16,6 @@
  */
 package org.apache.camel.component.telegram.service;
 
-import java.io.ByteArrayInputStream;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import org.apache.camel.component.telegram.TelegramService;
 import org.apache.camel.component.telegram.model.EditMessageLiveLocationMessage;
 import org.apache.camel.component.telegram.model.MessageResult;
@@ -40,10 +29,10 @@ import org.apache.camel.component.telegram.model.SendLocationMessage;
 import org.apache.camel.component.telegram.model.SendVenueMessage;
 import org.apache.camel.component.telegram.model.StopMessageLiveLocationMessage;
 import org.apache.camel.component.telegram.model.UpdateResult;
-import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
-import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.cxf.jaxrs.ext.multipart.Attachment;
-import org.apache.cxf.jaxrs.ext.multipart.ContentDisposition;
+import org.jboss.resteasy.client.jaxrs.ProxyBuilder;
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
 /**
  * Adapts the {@code RestBotAPI} to the {@code TelegramService} interface.
@@ -53,8 +42,11 @@ public class TelegramServiceRestBotAPIAdapter implements TelegramService {
     private RestBotAPI api;
 
     public TelegramServiceRestBotAPIAdapter() {
-        this.api = JAXRSClientFactory.create(RestBotAPI.BOT_API_DEFAULT_URL, RestBotAPI.class, Collections.singletonList(providerByCustomObjectMapper()));
-        WebClient.getConfig(this.api).getHttpConduit().getClient().setAllowChunking(false);
+        ResteasyClient client = (ResteasyClient) ResteasyClientBuilder.newBuilder().build();
+        ResteasyWebTarget target = client.target(RestBotAPI.BOT_API_DEFAULT_URL);
+        target.setChunked(false);
+
+        this.api = ProxyBuilder.builder(RestBotAPI.class, target).build();
     }
 
     public TelegramServiceRestBotAPIAdapter(RestBotAPI api) {
@@ -99,6 +91,7 @@ public class TelegramServiceRestBotAPIAdapter implements TelegramService {
         return api.sendMessage(authorizationToken, message);
     }
 
+    /*
     private MessageResult sendMessage(String authorizationToken, OutgoingPhotoMessage message) {
         List<Attachment> parts = new LinkedList<>();
 
@@ -195,10 +188,11 @@ public class TelegramServiceRestBotAPIAdapter implements TelegramService {
     private String escapeMimeName(String name) {
         return name.replace("\"", "");
     }
-    
+
     private JacksonJsonProvider providerByCustomObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(Include.NON_NULL);
         return new JacksonJsonProvider(mapper);
-    }    
+    }
+    */
 }

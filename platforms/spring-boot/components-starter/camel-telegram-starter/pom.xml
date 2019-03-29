@@ -38,6 +38,14 @@
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-telegram</artifactId>
       <version>${project.version}</version>
+      <!--START OF GENERATED CODE-->
+      <exclusions>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+      </exclusions>
+      <!--END OF GENERATED CODE-->
     </dependency>
     <!--START OF GENERATED CODE-->
     <dependency>
@@ -50,4 +58,17 @@
     </dependency>
     <!--END OF GENERATED CODE-->
   </dependencies>
+  <!--START OF GENERATED CODE-->
+  <repositories>
+    <repository>
+      <id>central</id>
+      <name>Maven Repository Switchboard</name>
+      <url>http://repo.maven.apache.org/maven2</url>
+    </repository>
+    <repository>
+      <id>orgapachecamel-1124</id>
+      <url>https://repository.apache.org/content/repositories/orgapachecamel-1124/</url>
+    </repository>
+  </repositories>
+  <!--END OF GENERATED CODE-->
 </project>

@@ -26,8 +26,7 @@ import org.apache.camel.component.telegram.service.TelegramServiceRestBotAPIAdap
  * The Rest client used as default implementation is thread safe, considering the current usage of the APIs. It is treated as a singleton.
  */
 public final class TelegramServiceProvider {
-
-    private static final TelegramServiceProvider INSTANCE = new TelegramServiceProvider();
+    private static TelegramServiceProvider INSTANCE;
 
     /**
      * The default service.
@@ -47,7 +46,11 @@ public final class TelegramServiceProvider {
     /**
      * Returns the singleton provider.
      */
-    public static TelegramServiceProvider get() {
+    public synchronized static TelegramServiceProvider get() {
+        if (INSTANCE == null) {
+            INSTANCE = new TelegramServiceProvider();
+        }
+
         return INSTANCE;
     }
 

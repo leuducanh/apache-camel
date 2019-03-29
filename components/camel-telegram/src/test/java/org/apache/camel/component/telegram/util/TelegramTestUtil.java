@@ -18,7 +18,8 @@ package org.apache.camel.component.telegram.util;
 
 import java.io.IOException;
 
-import org.apache.cxf.helpers.IOUtils;
+import org.apache.commons.io.IOUtils;
+
 
 /**
  * Utility functions for telegram tests.
@@ -38,9 +39,9 @@ public final class TelegramTestUtil {
     public static byte[] createSampleImage(String imageIOType) throws IOException {
         byte[] img;
         if (imageIOType.equalsIgnoreCase("png")) {
-            img = IOUtils.readBytesFromStream(TelegramTestUtil.class.getResourceAsStream("/attachments/sample.png"));
+            img = IOUtils.toByteArray(TelegramTestUtil.class.getResourceAsStream("/attachments/sample.png"));
         } else if (imageIOType.equalsIgnoreCase("jpg")) {
-            img = IOUtils.readBytesFromStream(TelegramTestUtil.class.getResourceAsStream("/attachments/sample.jpg"));
+            img = IOUtils.toByteArray(TelegramTestUtil.class.getResourceAsStream("/attachments/sample.jpg"));
         } else {
             throw new IllegalArgumentException("Unknown format " + imageIOType);
         }
@@ -49,17 +50,17 @@ public final class TelegramTestUtil {
 
 
     public static byte[] createSampleAudio() throws IOException {
-        byte[] audio = IOUtils.readBytesFromStream(TelegramTestUtil.class.getResourceAsStream("/attachments/sample.mp3"));
+        byte[] audio = IOUtils.toByteArray(TelegramTestUtil.class.getResourceAsStream("/attachments/sample.mp3"));
         return audio;
     }
 
     public static byte[] createSampleVideo() throws IOException {
-        byte[] video = IOUtils.readBytesFromStream(TelegramTestUtil.class.getResourceAsStream("/attachments/sample.mp4"));
+        byte[] video = IOUtils.toByteArray(TelegramTestUtil.class.getResourceAsStream("/attachments/sample.mp4"));
         return video;
     }
 
     public static byte[] createSampleDocument() throws IOException {
-        byte[] document = IOUtils.readBytesFromStream(TelegramTestUtil.class.getResourceAsStream("/attachments/sample.txt"));
+        byte[] document = IOUtils.toByteArray(TelegramTestUtil.class.getResourceAsStream("/attachments/sample.txt"));
         return document;
     }
 }
